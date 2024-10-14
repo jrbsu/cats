@@ -65,3 +65,19 @@ button:hover {
     border-bottom: 10px solid hsl(205, 100%, 40%);
     text-align: center;
 }
+
+.container-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+@media screen and (max-width: 600px) {
+    .container-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cat-info {
+        width: 90%;
+    }
+}

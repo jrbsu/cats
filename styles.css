@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #efefef;
@@ -6,6 +10,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    overflow-x: hidden;
 }
 
 .container {
@@ -15,6 +20,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 300px;
+    max-width: 90vw;
 }
 
 h1 {
@@ -78,6 +84,7 @@ button:hover {
     }
 
     .cat-info {
-        width: 90%;
+        width: 90vw;
+        max-width: 90vw;
     }
 }

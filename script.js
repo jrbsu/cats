@@ -8,6 +8,7 @@ function calculateAge(birthDate) {
     let fullDays = Math.floor((now - birth) / (1000 * 60 * 60 * 24));
     let fullMonths = years * 12 + months - 1;
     let minutes = Math.floor((now - birth) / (1000 * 60));
+    let seconds = Math.floor((now - birth) / 1000);
 
     if (days < 0) {
         months--;
@@ -21,16 +22,24 @@ function calculateAge(birthDate) {
         months += 12;
     }
 
-    return { years, months, days, fullDays, fullMonths, minutes };
+    return { years, months, days, fullDays, fullMonths, minutes, seconds };
 }
 
-// Store the format for each cat
 let format = {
     fresno: 'months-days',
     anaheim: 'months-days'
 };
 
-function toggleFormat(cat, age) {
+function numberWithCommas(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function plural(unit, num) {
+    let plural = num == 1 ? unit : unit + "s"
+    return numberWithCommas(num) + " " + plural
+}
+
+function updateDisplay(cat, age) {
     const yearsEl = document.getElementById(`${cat}-years`);
     const monthsEl = document.getElementById(`${cat}-months`);
     const daysEl = document.getElementById(`${cat}-days`);
@@ -39,46 +48,69 @@ function toggleFormat(cat, age) {
     if (format[cat] === 'days') {
         yearsEl.textContent = '';
         monthsEl.textContent = '';
-        daysEl.textContent = age.fullDays + ' days';
-        format[cat] = 'months-days';
+        daysEl.textContent = plural("day", age.fullDays);
         buttonEl.textContent = 'months and days';
     } else if (format[cat] === 'months-days') {
         yearsEl.textContent = '';
-        monthsEl.textContent = age.fullMonths + ' months';
-        daysEl.textContent = age.days + ' days';
-        format[cat] = 'years-months';
+        monthsEl.textContent = plural("month", age.fullMonths);
+        daysEl.textContent = plural("day", age.days);
         buttonEl.textContent = 'years and months';
     } else if (format[cat] === 'years-months') {
-        yearsEl.textContent = age.years + ' years';
-        monthsEl.textContent = age.months + ' months';
-        daysEl.textContent = age.days + ' days';
-        format[cat] = 'minutes';
+        yearsEl.textContent = plural("year", age.years);
+        monthsEl.textContent = plural("month", age.months);
+        daysEl.textContent = plural("day", age.days);
         buttonEl.textContent = 'minutes';
     } else if (format[cat] === 'minutes') {
         yearsEl.textContent = '';
         monthsEl.textContent = '';
-        daysEl.textContent = age.minutes + ' minutes';
-        format[cat] = 'days';
+        daysEl.textContent = plural("minute", age.minutes);
+        buttonEl.textContent = 'seconds';
+    } else if (format[cat] === 'seconds') {
+        yearsEl.textContent = '';
+        monthsEl.textContent = '';
+        daysEl.textContent = plural("second", age.seconds);;
         buttonEl.textContent = 'days';
     }
 }
 
-const fresnoBirthDate = '2024-03-29';
-const fresnoAge = calculateAge(fresnoBirthDate);
+function initialLoad() {
+    const fresnoAge = calculateAge('2024-03-29');
+    const anaheimAge = calculateAge('2024-05-28');
 
-const anaheimBirthDate = '2024-05-28';
-const anaheimAge = calculateAge(anaheimBirthDate);
+    updateDisplay('fresno', fresnoAge);
+    updateDisplay('anaheim', anaheimAge);
+}
 
-document.getElementById('fresno-years').textContent = '';
-document.getElementById('fresno-months').textContent = '';
-document.getElementById('fresno-days').textContent = fresnoAge.fullDays + ' days';
+function toggleFormat(cat, birthDate) {
+    const age = calculateAge(birthDate);
 
-document.getElementById('anaheim-years').textContent = '';
-document.getElementById('anaheim-months').textContent = '';
-document.getElementById('anaheim-days').textContent = anaheimAge.fullDays + ' days';
+    if (format[cat] === 'days') {
+        format[cat] = 'months-days';
+    } else if (format[cat] === 'months-days') {
+        format[cat] = 'years-months';
+    } else if (format[cat] === 'years-months') {
+        format[cat] = 'minutes';
+    } else if (format[cat] === 'minutes') {
+        format[cat] = 'seconds';
+    } else if (format[cat] === 'seconds') {
+        format[cat] = 'days';
+    }
 
-document.getElementById('toggle-fresno').addEventListener('click', () => toggleFormat('fresno', fresnoAge));
-document.getElementById('toggle-anaheim').addEventListener('click', () => toggleFormat('anaheim', anaheimAge));
+    updateDisplay(cat, age);
+}
+
+setInterval(() => {
+    const fresnoAge = calculateAge('2024-03-29');
+    const anaheimAge = calculateAge('2024-05-28');
+    
+    updateDisplay('fresno', fresnoAge);
+    updateDisplay('anaheim', anaheimAge);
+}, 1000);
+
+document.getElementById('toggle-fresno').addEventListener('click', () => toggleFormat('fresno', '2024-03-29'));
+document.getElementById('toggle-anaheim').addEventListener('click', () => toggleFormat('anaheim', '2024-05-28'));
 
 document.getElementById('toggle-fresno').textContent = 'months and days';
 document.getElementById('toggle-anaheim').textContent = 'months and days';
+
+initialLoad();

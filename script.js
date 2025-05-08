@@ -1,32 +1,33 @@
 function calculateAge(birthDate) {
-    const now = new Date();
-    const birth = new Date(birthDate);
-    
-    let years = now.getFullYear() - birth.getFullYear();
-    let months = now.getMonth() - birth.getMonth();
-    let days = now.getDate() - birth.getDate();
-    let fullDays = Math.floor((now - birth) / (1000 * 60 * 60 * 24));
-    let fullMonths = years * 12 + months - 1;
-    let minutes = Math.floor((now - birth) / (1000 * 60));
-    let seconds = Math.floor((now - birth) / 1000);
+  const now   = new Date();
+  const birth = new Date(birthDate);
 
-    if (days < 0) {
-        months--;
-        const previousMonth = (now.getMonth() - 1 + 12) % 12;
-        const daysInPreviousMonth = new Date(now.getFullYear(), previousMonth + 1, 0).getDate();
-        days += daysInPreviousMonth;
-    }
+  let years  = now.getFullYear()  - birth.getFullYear();
+  let months = now.getMonth()     - birth.getMonth();
+  let days   = now.getDate()      - birth.getDate();
 
-    if (months < 0) {
-        years--;
-        months += 12;
-    }
+  if (days < 0) {
+    months--;
+    // days in the previous month:
+    const daysInPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    days += daysInPrevMonth;
+  }
 
-    return { years, months, days, fullDays, fullMonths, minutes, seconds };
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  const fullDays   = Math.floor((now - birth) / (1000 * 60 * 60 * 24));
+  const fullMonths = years * 12 + months;
+  const minutes    = Math.floor((now - birth) / (1000 * 60));
+  const seconds    = Math.floor((now - birth) / 1000);
+
+  return { years, months, days, fullDays, fullMonths, minutes, seconds };
 }
 
 let format = {
-    fresno: 'months-days',
+    fresno: 'years-months',
     anaheim: 'months-days'
 };
 

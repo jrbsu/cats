@@ -1,116 +1,163 @@
 /* --- Local fonts (repo: ./assets/) --- */
 @font-face {
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src:
-        local("Inter"),
-        url("./assets/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    local("Inter"),
+    url("./assets/Inter-VariableFont_opsz,wght.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: "BBH Bartle";
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src:
-        local("BBH Bartle"),
-        url("./assets/BBHBartle-Regular.ttf") format("truetype");
+  font-family: "BBH Bartle";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("BBH Bartle"),
+    url("./assets/BBHBartle-Regular.ttf") format("truetype");
 }
 
-/* --- Your existing CSS --- */
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #848484;
+  --card: #ffffff;
+  --text: #111;
+  --muted: #555;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+  --radius: 18px;
+
+  /* defaults (overridden per-cat below) */
+  --accent: #0095ff;
+  --silhouette: #dbae76;
 }
 
 body {
-    font-family: "Inter", Arial, sans-serif;
-    background-color: #efefef;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow-x: hidden;
-}
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg width='84' height='48' viewBox='0 0 84 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h12v6H0V0zm28 8h12v6H28V8zm14-8h12v6H42V0zm14 0h12v6H56V0zm0 8h12v6H56V8zM42 8h12v6H42V8zm0 16h12v6H42v-6zm14-8h12v6H56v-6zm14 0h12v6H70v-6zm0-16h12v6H70V0zM28 32h12v6H28v-6zM14 16h12v6H14v-6zM0 24h12v6H0v-6zm0 8h12v6H0v-6zm14 0h12v6H14v-6zm14 8h12v6H28v-6zm-14 0h12v6H14v-6zm28 0h12v6H42v-6zm14-8h12v6H56v-6zm0-8h12v6H56v-6zm14 8h12v6H70v-6zm0 8h12v6H70v-6zM14 24h12v6H14v-6zm14-8h12v6H28v-6zM14 8h12v6H14V8zM0 8h12v6H0V8z' fill='%23262626' fill-opacity='0.14' fill-rule='evenodd'/%3E%3C/svg%3E");
+  font-family: "Inter", Arial, sans-serif;
+  margin: 0;
+  color: var(--text);
 
-.container {
-    text-align: center;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 300px;
-    max-width: 90vw;
-}
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-h1 {
-    color: #333;
-}
-
-h2 {
-    color: #333;
-    margin: 10px;
-    font-family: "BBH Bartle", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-}
-
-.cat-info {
-    margin: 20px 0;
-}
-
-p {
-    font-size: 18px;
-    color: #555;
-}
-
-span {
-    font-weight: bold;
-}
-
-button {
-    background-color: #0095ff;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 10px;
-    width: 150px;
-    font-family: "Inter", Arial, sans-serif;
-}
-
-button:hover {
-    background-color: #005b9c;
-}
-
-.cat-info {
-    background-color: #fefefe;
-    width: 300px;
-    margin: 20px;
-    padding: 10px;
-    border-top: 10px solid hsl(205, 100%, 70%);
-    border-left: 10px solid hsl(205, 100%, 60%);
-    border-right: 10px solid hsl(205, 100%, 50%);
-    border-bottom: 10px solid hsl(205, 100%, 40%);
-    text-align: center;
+  padding: 24px;
 }
 
 .container-wrapper {
-    display: flex;
-    justify-content: center;
+  width: min(900px, 100%);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
 }
 
-@media screen and (max-width: 600px) {
-    .container-wrapper {
-        flex-direction: column;
-        align-items: center;
-    }
+.cat-info {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 18px 18px 14px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
 
-    .cat-info {
-        width: 90vw;
-        max-width: 90vw;
-    }
+.cat-info::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 15%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 55%),
+    radial-gradient(circle at 85% 75%, color-mix(in oklab, var(--accent) 45%, transparent), transparent 60%),
+    linear-gradient(180deg, color-mix(in oklab, var(--accent) 18%, transparent), transparent 55%);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.cat-icon {
+  width: 92px;
+  height: auto;
+  margin: 6px auto 2px;
+
+  /* this is why currentColor is great */
+  color: var(--silhouette);
+}
+
+h2 {
+  margin: 6px 0 2px;
+  font-family: "BBH Bartle", sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  color: #222;
+}
+
+.cat-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.age {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.01em;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 5px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.age span {
+  font-weight: 700;
+  color: #222;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  min-width: 170px;
+
+  background: var(--accent);
+  color: white;
+  font-family: "Inter", Arial, sans-serif;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+button:hover {
+  filter: brightness(0.92);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(0, 149, 255, 0.35);
+  outline-offset: 3px;
+}
+
+/* Per-cat theming */
+.cat-info[data-cat="fresno"] {
+  --accent: #6B6F76;
+  --silhouette: #C08A5A;
+}
+
+.cat-info[data-cat="anaheim"] {
+  --accent: #D6C93A;
+  /* purple-ish */
+  --silhouette: #1C1F24;
+  /* “black cat” fill */
 }

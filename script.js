@@ -5,14 +5,6 @@
 // --------------------
 const FORMATS = ["days", "months-days", "years-months", "minutes", "seconds"];
 
-const FORMAT_LABEL = {
-  "days": "days",
-  "months-days": "months and days",
-  "years-months": "years and months",
-  "minutes": "minutes",
-  "seconds": "seconds",
-};
-
 const CATS = {
   fresno:  { birthISO: "2024-03-29", initialFormat: "years-months" },
   anaheim: { birthISO: "2024-05-28", initialFormat: "years-months" },
@@ -50,12 +42,20 @@ function daysInMonthUTC(year, monthIndex0to11) {
 function calculateAgeUTC(birthISO, now = new Date()) {
   const birth = parseISODateToUTC(birthISO);
   if (!birth) {
-    return { years: 0, months: 0, days: 0, fullDays: 0, fullMonths: 0, minutes: 0, seconds: 0 };
+    return {
+      years: 0, months: 0, days: 0,
+      fullDays: 0, fullMonths: 0,
+      minutes: 0, seconds: 0
+    };
   }
 
   // If birth is in the future, clamp to zero-ish.
   if (now.getTime() < birth.getTime()) {
-    return { years: 0, months: 0, days: 0, fullDays: 0, fullMonths: 0, minutes: 0, seconds: 0 };
+    return {
+      years: 0, months: 0, days: 0,
+      fullDays: 0, fullMonths: 0,
+      minutes: 0, seconds: 0
+    };
   }
 
   const nowY = now.getUTCFullYear();
@@ -154,13 +154,9 @@ function renderCat(cat) {
   const age = calculateAgeUTC(s.birthISO);
   const plan = buildRenderPlan(s.format, age);
 
-  // Only write if node exists
   if (s.els.years)  s.els.years.textContent  = plan.yearsText;
   if (s.els.months) s.els.months.textContent = plan.monthsText;
   if (s.els.days)   s.els.days.textContent   = plan.daysText;
-
-  const next = nextFormat(s.format);
-  if (s.els.toggle) s.els.toggle.textContent = FORMAT_LABEL[next] ?? next;
 }
 
 function tick() {
@@ -182,8 +178,9 @@ document.addEventListener("DOMContentLoaded", () => {
       els: getEls(cat),
     };
 
-    // Hook up button
+    // Hook up button + set static label once
     if (state[cat].els.toggle) {
+      state[cat].els.toggle.textContent = "↻";
       state[cat].els.toggle.addEventListener("click", () => toggleCat(cat));
     }
 

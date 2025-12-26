@@ -31,10 +31,19 @@
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
   --shadow-hover: 0 26px 70px rgba(0, 0, 0, 0.28);
   --radius: 18px;
+  --accent: #fff;
+  --silhouette: #fff;
+}
 
-  /* defaults (overridden per-cat below) */
-  --accent: #0095ff;
-  --silhouette: #dbae76;
+/* Per-cat theming */
+.cat-info[data-cat="fresno"] {
+  --accent: #6B6F76;
+  --silhouette: #C08A5A;
+}
+
+.cat-info[data-cat="anaheim"] {
+  --accent: #D6C93A;
+  --silhouette: #1C1F24;
 }
 
 body {
@@ -153,19 +162,6 @@ button:active {
 button:focus-visible {
   outline: 3px solid rgba(0, 149, 255, 0.35);
   outline-offset: 3px;
-}
-
-/* Per-cat theming */
-.cat-info[data-cat="fresno"] {
-  --accent: #6B6F76;
-  --silhouette: #C08A5A;
-}
-
-.cat-info[data-cat="anaheim"] {
-  --accent: #D6C93A;
-  /* purple-ish */
-  --silhouette: #1C1F24;
-  /* “black cat” fill */
 }
 
 /* ---------- Background hover image layer ---------- */

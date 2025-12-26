@@ -24,11 +24,12 @@
 }
 
 :root {
-  --bg: #848484;
+  --bg: #363636;
   --card: #ffffff;
   --text: #111;
   --muted: #555;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+  --shadow-hover: 0 26px 70px rgba(0, 0, 0, 0.28);
   --radius: 18px;
 
   /* defaults (overridden per-cat below) */
@@ -38,7 +39,6 @@
 
 body {
   background-color: var(--bg);
-  background-image: url("data:image/svg+xml,%3Csvg width='84' height='48' viewBox='0 0 84 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h12v6H0V0zm28 8h12v6H28V8zm14-8h12v6H42V0zm14 0h12v6H56V0zm0 8h12v6H56V8zM42 8h12v6H42V8zm0 16h12v6H42v-6zm14-8h12v6H56v-6zm14 0h12v6H70v-6zm0-16h12v6H70V0zM28 32h12v6H28v-6zM14 16h12v6H14v-6zM0 24h12v6H0v-6zm0 8h12v6H0v-6zm14 0h12v6H14v-6zm14 8h12v6H28v-6zm-14 0h12v6H14v-6zm28 0h12v6H42v-6zm14-8h12v6H56v-6zm0-8h12v6H56v-6zm14 8h12v6H70v-6zm0 8h12v6H70v-6zM14 24h12v6H14v-6zm14-8h12v6H28v-6zM14 8h12v6H14V8zM0 8h12v6H0V8z' fill='%23262626' fill-opacity='0.14' fill-rule='evenodd'/%3E%3C/svg%3E");
   font-family: "Inter", Arial, sans-serif;
   margin: 0;
   color: var(--text);
@@ -55,7 +55,7 @@ body {
   width: min(900px, 100%);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px;
+  gap: clamp(14px, 3vw, 32px);
 }
 
 .cat-info {
@@ -67,6 +67,12 @@ body {
   text-align: center;
   position: relative;
   overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.cat-info:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
 }
 
 .cat-info::before {
@@ -160,4 +166,80 @@ button:focus-visible {
   /* purple-ish */
   --silhouette: #1C1F24;
   /* “black cat” fill */
+}
+
+/* ---------- Background hover image layer ---------- */
+#bg-image {
+  position: fixed;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+  z-index: 0;
+  filter: saturate(1.05) contrast(1.05);
+  transform: scale(1.03); /* avoids edge gaps on some browsers */
+}
+
+/* Soft wash so text/cards stay readable */
+#bg-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 24, 24, 0.72);
+}
+
+body.has-bg #bg-image {
+  opacity: 1;
+}
+
+/* Ensure your content sits above the background layer */
+.container-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Toggle arrow behavior ---------- */
+button.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+button.toggle-btn .toggle-icon {
+  display: inline-block;
+  line-height: 1;
+  font-size: 18px;
+
+  /* rotation controlled by a CSS var we set from JS */
+  transform: rotate(var(--rot, 0deg));
+  transition: transform 180ms ease;
+}
+
+/* small “tease” rotation on hover */
+button.toggle-btn:hover .toggle-icon {
+  transform: rotate(calc(var(--rot, 0deg) + 18deg));
+}
+
+/* slightly more on active press */
+button.toggle-btn:active .toggle-icon {
+  transform: rotate(calc(var(--rot, 0deg) + 35deg));
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #bg-image,
+  button.toggle-btn .toggle-icon {
+    transition: none;
+  }
+}
+
+@media (hover: none) {
+  .cat-info:hover {
+    transform: none;
+    box-shadow: var(--shadow);
+  }
 }

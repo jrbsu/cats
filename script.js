@@ -10,6 +10,21 @@ const CATS = {
   anaheim: { birthISO: "2024-05-28", initialFormat: "years-months" },
 };
 
+const CAT_IMAGES = {
+  fresno: [
+    "./assets/bg/fresno-01.jpeg",
+    "./assets/bg/fresno-02.jpeg",
+    "./assets/bg/fresno-03.jpeg",
+    "./assets/bg/fresno-04.jpeg",
+  ],
+  anaheim: [
+    "./assets/bg/anaheim-01.jpeg",
+    "./assets/bg/anaheim-02.jpeg",
+    "./assets/bg/anaheim-03.jpeg",
+    "./assets/bg/anaheim-04.jpeg",
+  ],
+};
+
 // --------------------
 // Intl helpers
 // --------------------
@@ -28,34 +43,19 @@ function formatUnit(unit, value) {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function parseISODateToUTC(iso) {
-  // iso = "YYYY-MM-DD"
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d) return null;
   return new Date(Date.UTC(y, m - 1, d));
 }
 
 function daysInMonthUTC(year, monthIndex0to11) {
-  // day 0 of next month = last day of current month
   return new Date(Date.UTC(year, monthIndex0to11 + 1, 0)).getUTCDate();
 }
 
 function calculateAgeUTC(birthISO, now = new Date()) {
   const birth = parseISODateToUTC(birthISO);
-  if (!birth) {
-    return {
-      years: 0, months: 0, days: 0,
-      fullDays: 0, fullMonths: 0,
-      minutes: 0, seconds: 0
-    };
-  }
-
-  // If birth is in the future, clamp to zero-ish.
-  if (now.getTime() < birth.getTime()) {
-    return {
-      years: 0, months: 0, days: 0,
-      fullDays: 0, fullMonths: 0,
-      minutes: 0, seconds: 0
-    };
+  if (!birth || now.getTime() < birth.getTime()) {
+    return { years: 0, months: 0, days: 0, fullDays: 0, fullMonths: 0, minutes: 0, seconds: 0 };
   }
 
   const nowY = now.getUTCFullYear();
@@ -102,27 +102,18 @@ function buildRenderPlan(formatKey, age) {
   switch (formatKey) {
     case "days":
       return { yearsText: "", monthsText: "", daysText: formatUnit("day", age.fullDays) };
-
     case "months-days":
-      return {
-        yearsText: "",
-        monthsText: formatUnit("month", age.fullMonths),
-        daysText: formatUnit("day", age.days),
-      };
-
+      return { yearsText: "", monthsText: formatUnit("month", age.fullMonths), daysText: formatUnit("day", age.days) };
     case "years-months":
       return {
         yearsText: formatUnit("year", age.years),
         monthsText: formatUnit("month", age.months),
         daysText: formatUnit("day", age.days),
       };
-
     case "minutes":
       return { yearsText: "", monthsText: "", daysText: formatUnit("minute", age.minutes) };
-
     case "seconds":
       return { yearsText: "", monthsText: "", daysText: formatUnit("second", age.seconds) };
-
     default:
       return { yearsText: "", monthsText: "", daysText: "" };
   }
@@ -134,9 +125,64 @@ function nextFormat(current) {
 }
 
 // --------------------
+// Background hover image helpers
+// --------------------
+let bgEl = null;
+
+function setHoverBackground(url) {
+  if (!bgEl || !url) return;
+  bgEl.style.backgroundImage = `url("${url}")`;
+  document.body.classList.add("has-bg");
+}
+
+function clearHoverBackground() {
+  document.body.classList.remove("has-bg");
+}
+
+function preloadImages() {
+  for (const urls of Object.values(CAT_IMAGES)) {
+    for (const url of urls) {
+      const img = new Image();
+      img.src = url;
+    }
+  }
+}
+
+// --------------------
+// Toggle button helpers (arrow rotation)
+// --------------------
+function ensureToggleMarkup(btn) {
+  if (!btn) return null;
+
+  btn.classList.add("toggle-btn");
+
+  // Replace contents so we can rotate only the arrow
+  btn.innerHTML = `
+    <span class="toggle-icon" aria-hidden="true">↻</span>
+    <span class="toggle-label">toggle</span>
+  `;
+
+  // Rotation state lives in CSS var on the button
+  btn.style.setProperty("--rot", "0deg");
+
+  return {
+    icon: btn.querySelector(".toggle-icon"),
+    label: btn.querySelector(".toggle-label"),
+  };
+}
+
+function spinButton(btn, deltaDeg = 180) {
+  if (!btn) return;
+  const cur = btn.style.getPropertyValue("--rot") || "0deg";
+  const curNum = Number(String(cur).replace("deg", "")) || 0;
+  const next = curNum + deltaDeg;
+  btn.style.setProperty("--rot", `${next}deg`);
+}
+
+// --------------------
 // App state + init
 // --------------------
-const state = {}; // cat -> { birthISO, format, els }
+const state = {}; // cat -> { birthISO, format, els, bgIndex, card }
 
 function getEls(cat) {
   return {
@@ -166,28 +212,56 @@ function tick() {
 function toggleCat(cat) {
   const s = state[cat];
   if (!s) return;
+
   s.format = nextFormat(s.format);
   renderCat(cat);
+
+  if (s.els.toggle) spinButton(s.els.toggle, 180);
+}
+
+function nextImageFor(cat) {
+  const pool = CAT_IMAGES[cat] || [];
+  if (!pool.length) return null;
+
+  const s = state[cat];
+  const idx = s.bgIndex % pool.length;
+  const url = pool[idx];
+  s.bgIndex = (idx + 1) % pool.length;
+  return url;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  bgEl = document.getElementById("bg-image");
+  preloadImages();
+
   for (const [cat, cfg] of Object.entries(CATS)) {
     state[cat] = {
       birthISO: cfg.birthISO,
       format: cfg.initialFormat,
       els: getEls(cat),
+      bgIndex: 0,
+      card: document.querySelector(`.cat-info[data-cat="${cat}"]`),
     };
 
-    // Hook up button + set static label once
+    // Toggle button setup + click
     if (state[cat].els.toggle) {
-      state[cat].els.toggle.textContent = "↻";
+      ensureToggleMarkup(state[cat].els.toggle);
       state[cat].els.toggle.addEventListener("click", () => toggleCat(cat));
     }
 
-    // Initial render
+    if (state[cat].card) {
+      state[cat].card.addEventListener("pointerenter", () => {
+        const url = nextImageFor(cat);
+        if (url) setHoverBackground(url);
+      });
+
+      state[cat].card.addEventListener("pointerleave", () => {
+        clearHoverBackground();
+      });
+    }
+
     renderCat(cat);
   }
 
-  // Update once per second (needed for seconds/minutes mode)
   setInterval(tick, 1000);
 });
